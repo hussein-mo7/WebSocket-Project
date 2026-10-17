@@ -10,7 +10,6 @@ import {
   VideoOff,
   Mic,
   MicOff,
-  X,
   PhoneIncoming,
 } from "lucide-react";
 
@@ -131,47 +130,33 @@ export function ActiveCallScreen() {
     toggleVideo,
   } = useCall();
 
-  const [callDuration, setCallDuration] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
   const remoteAudioRef = useRef<HTMLAudioElement>(null);
+  const callDuration =
+    callState.status === "connected" && callState.callStartTime
+      ? Math.max(
+          0,
+          Math.floor((now - callState.callStartTime.getTime()) / 1000),
+        )
+      : 0;
 
-  // Debug log
-  console.log("📞 ActiveCallScreen render - status:", callState.status);
-
-  // Attach remote stream to audio element for voice calls
   useEffect(() => {
-    if (callState.remoteStream && remoteAudioRef.current) {
-      console.log("📞 Attaching remote stream to audio element");
-      remoteAudioRef.current.srcObject = callState.remoteStream;
-      remoteAudioRef.current.play().catch(err => {
-        console.error("📞 Error playing remote audio:", err);
-      });
-    }
+    const audio = remoteAudioRef.current;
+    const stream = callState.remoteStream;
+    if (!audio || !stream) return;
+
+    audio.srcObject = stream;
+    audio.play().catch((err: unknown) => {
+      console.error("Error playing remote audio:", err);
+    });
   }, [callState.remoteStream]);
 
-  // Update call duration every second
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (callState.status === "connected" && callState.callStartTime) {
-      interval = setInterval(() => {
-        const duration = Math.floor(
-          (Date.now() - callState.callStartTime!.getTime()) / 1000
-        );
-        setCallDuration(duration);
-      }, 1000);
-    }
+    if (callState.status !== "connected" || !callState.callStartTime) return;
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
   }, [callState.status, callState.callStartTime]);
-
-  // Reset duration when call ends
-  useEffect(() => {
-    if (callState.status === "idle") {
-      setCallDuration(0);
-    }
-  }, [callState.status]);
 
   if (callState.status === "idle" || callState.status === "ringing") return null;
 

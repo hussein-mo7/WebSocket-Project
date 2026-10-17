@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { callService } from "../services/call.service";
 import { sendResponse } from "../utils/response.util";
-import { BadRequestError, NotFoundError, AuthorizationError } from "../types/error.types";
+import { BadRequestError, AuthorizationError } from "../types/error.types";
 import { asyncHandler } from "../middleware/error.middleware";
 
 // Initiate a call

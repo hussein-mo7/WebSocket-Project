@@ -204,20 +204,22 @@ export const uploadMessageMedia = asyncHandler(async (req: Request, res: Respons
     throw new BadRequestError("No file uploaded");
   }
 
-  // Upload to Cloudinary
-  const result = await new Promise((resolve, reject) => {
+  const uploaded = await new Promise<{ secure_url: string }>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "messages",
         resource_type: "auto",
       },
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
+        if (error || !result?.secure_url) {
+          reject(error ?? new Error("Upload failed"));
+          return;
+        }
+        resolve(result);
+      },
     );
     stream.end(req.file!.buffer);
   });
 
-  sendResponse(res, 200, "File uploaded", { url: (result as any).secure_url });
+  sendResponse(res, 200, "File uploaded", { url: uploaded.secure_url });
 });

@@ -36,7 +36,10 @@ interface UseChatSocketReturn {
   error: string | null;
   
   // Actions
-  sendMessage: (content: string) => void;
+  sendMessage: (
+    content: string,
+    options?: { type?: string; mediaUrls?: string[] },
+  ) => void;
   editMessage: (messageId: string, content: string) => void;
   deleteMessage: (messageId: string) => void;
   
@@ -122,11 +125,17 @@ export function useChatSocket({
    * Send a new message
    */
   const sendMessage = useCallback(
-    (content: string) => {
-      if (!content.trim() || !conversationId) return;
-      socketSendMessage(conversationId, content.trim());
+    (content: string, options?: { type?: string; mediaUrls?: string[] }) => {
+      const mediaUrls = options?.mediaUrls ?? [];
+      if ((!content.trim() && mediaUrls.length === 0) || !conversationId) return;
+      socketSendMessage(
+        conversationId,
+        content.trim(),
+        options?.type ?? "TEXT",
+        mediaUrls,
+      );
     },
-    [conversationId, socketSendMessage]
+    [conversationId, socketSendMessage],
   );
 
   /**

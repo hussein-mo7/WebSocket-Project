@@ -53,8 +53,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
       text: options.text || options.html,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    // email sent (log removed)
+    await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("❌ Failed to send email:", error);
     throw new Error("Failed to send email");
@@ -66,7 +65,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
  */
 export const sendVerificationEmail = async (
   email: string,
-  verificationToken: string,
+  _verificationToken: string,
   verificationUrl: string
 ): Promise<void> => {
   const html = `
@@ -98,7 +97,7 @@ export const sendVerificationEmail = async (
  */
 export const sendPasswordResetEmail = async (
   email: string,
-  resetToken: string,
+  _resetToken: string,
   resetUrl: string
 ): Promise<void> => {
   const html = `

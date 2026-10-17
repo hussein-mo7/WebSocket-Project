@@ -2,14 +2,9 @@ import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { app } from "./app";
 import { config } from "./config/env.config";
-import { PrismaClient } from "@prisma/client";
+import prisma from "./config/db";
 import { setupChatSocket } from "./socket/chat.socket";
 import { verifyAccessToken } from "./utils/jwt.util";
-
-/**
- * Initialize Prisma Client
- */
-const prisma = new PrismaClient();
 
 /**
  * Create HTTP Server
@@ -130,11 +125,12 @@ const startServer = async () => {
     // Attempt to connect to database (optional)
     const dbConnected = await connectDatabase();
 
-    // Start listening
     server.listen(config.PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${config.PORT}`);
+      console.log(`Server running on http://localhost:${config.PORT}`);
       console.log(
-        `✅ WebSocket server initialized with CORS origin: ${config.CLIENT_URL}`
+        dbConnected
+          ? "Database connected"
+          : "Database unavailable. Chat history will not load until PostgreSQL is running.",
       );
     });
   } catch (error) {

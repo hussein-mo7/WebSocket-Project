@@ -96,9 +96,6 @@ class SocketService {
       this.socket?.emit("user:online");
     });
 
-    this.socket.on("disconnect", (reason) => {
-    });
-
     this.socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error.message);
     });

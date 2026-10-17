@@ -78,12 +78,10 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up callbacks
     callService.setOnStateChange((state) => {
-      console.log("📞 Call state change:", state);
       setCallState((prev) => ({ ...prev, ...state }));
     });
 
     callService.setOnRemoteStream((stream) => {
-      console.log("📞 Remote stream received");
       setCallState((prev) => ({ ...prev, remoteStream: stream }));
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = stream;
@@ -91,14 +89,12 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     });
 
     callService.setOnCallEnded(() => {
-      console.log("📞 Call ended callback");
       callSounds.playEnded();
       setCallState(initialCallState);
       setIncomingCall(null);
     });
 
     callService.setOnIncomingCall((data) => {
-      console.log("📞 Incoming call received in context:", data);
       callSounds.playRingtone();
       setIncomingCall(data);
       setCallState((prev) => ({
@@ -118,7 +114,6 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       
       const socket = socketService.getSocket();
       if (socket?.connected) {
-        console.log("📞 Initializing call socket listeners");
         callService.initializeSocketListeners();
         listenersInitialized.current = true;
         return true;

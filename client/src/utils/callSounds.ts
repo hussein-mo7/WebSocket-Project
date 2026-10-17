@@ -188,14 +188,11 @@ class CallSounds {
    * Stop all sounds
    */
   stopAll() {
-    console.log("🔇 Stopping all sounds");
     if (this.ringtoneInterval) {
-      console.log("🔇 Clearing ringtone interval");
       clearInterval(this.ringtoneInterval);
       this.ringtoneInterval = null;
     }
     if (this.ringbackInterval) {
-      console.log("🔇 Clearing ringback interval");
       clearInterval(this.ringbackInterval);
       this.ringbackInterval = null;
     }
@@ -210,7 +207,6 @@ class CallSounds {
     // Also suspend audio context to immediately stop any playing sounds
     if (this.audioContext && this.audioContext.state === "running") {
       this.audioContext.suspend().then(() => {
-        console.log("🔇 Audio context suspended");
         // Resume it for future sounds
         this.audioContext?.resume();
       });

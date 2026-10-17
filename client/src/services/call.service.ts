@@ -116,11 +116,9 @@ class CallService {
     // Remove any existing listeners first to prevent duplicates
     this.removeSocketListeners();
 
-    console.log("📞 Setting up call socket listeners, socket id:", socket.id, "connected:", socket.connected);
 
     // Incoming call offer
     socket.on("call:offer", (data) => {
-      console.log("📞 Incoming call offer received:", data);
       this.onIncomingCall?.(data);
     });
 
@@ -141,7 +139,6 @@ class CallService {
 
     // Call declined
     socket.on("call:declined", () => {
-      console.log("📞 Call declined");
       callSounds.stopAll();
       callSounds.playDeclined();
       this.endCall();
@@ -150,7 +147,6 @@ class CallService {
 
     // Call ended by other party
     socket.on("call:ended", () => {
-      console.log("📞 Call ended by other party");
       this.endCall();
       this.onCallEnded?.();
     });
@@ -179,7 +175,6 @@ class CallService {
     callType: CallType
   ): Promise<MediaStream | null> {
     try {
-      console.log("📞 Starting call to:", receiverId, "type:", callType);
       
       const socket = socketService.getSocket();
       if (!socket) {
@@ -190,20 +185,14 @@ class CallService {
       // Remove any existing listener first
       socket.off("call:answer");
       socket.on("call:answer", async (data: { from: string; answer: RTCSessionDescriptionInit; conversationId: string }) => {
-        console.log("📞 ✅ ANSWER RECEIVED from:", data.from);
         if (this.peerConnection && data.answer) {
           try {
-            console.log("📞 Setting remote description from answer...");
             await this.peerConnection.setRemoteDescription(
               new RTCSessionDescription(data.answer)
             );
-            console.log("📞 Remote description set! Call connected.");
             callSounds.stopAll();
             callSounds.playConnected();
-            console.log("📞 Calling onStateChange with status: connected");
-            console.log("📞 onStateChange exists:", !!this.onStateChange);
             this.onStateChange?.({ status: "connected", callStartTime: new Date() });
-            console.log("📞 onStateChange called!");
           } catch (err) {
             console.error("📞 Error setting remote description:", err);
           }
@@ -215,11 +204,9 @@ class CallService {
         video: callType === "VIDEO",
         audio: true,
       });
-      console.log("📞 Got local stream for caller");
 
       // Create peer connection
       this.peerConnection = new RTCPeerConnection(ICE_SERVERS);
-      console.log("📞 Created peer connection for caller");
 
       // Add local tracks to peer connection
       this.localStream.getTracks().forEach((track) => {
@@ -229,7 +216,6 @@ class CallService {
       // Handle remote stream
       this.remoteStream = new MediaStream();
       this.peerConnection.ontrack = (event) => {
-        console.log("📞 Caller got remote track:", event.track.kind);
         event.streams[0].getTracks().forEach((track) => {
           this.remoteStream!.addTrack(track);
         });
@@ -239,7 +225,6 @@ class CallService {
       // Handle ICE candidates
       this.peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          console.log("📞 Caller sending ICE candidate");
           socket.emit("call:ice-candidate", {
             conversationId,
             candidate: event.candidate,
@@ -250,7 +235,6 @@ class CallService {
 
       // Handle connection state changes
       this.peerConnection.onconnectionstatechange = () => {
-        console.log("📞 Caller connection state:", this.peerConnection?.connectionState);
         if (this.peerConnection?.connectionState === "disconnected" ||
             this.peerConnection?.connectionState === "failed") {
           this.endCall();
@@ -259,11 +243,9 @@ class CallService {
       };
 
       // Create and send offer
-      console.log("📞 Creating offer");
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
 
-      console.log("📞 Sending offer to:", receiverId);
       socket.emit("call:offer", {
         conversationId,
         offer,
@@ -291,18 +273,15 @@ class CallService {
     callType: CallType
   ): Promise<MediaStream | null> {
     try {
-      console.log("📞 Answering call from:", callerId, "type:", callType);
       
       // Get user media
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: callType === "VIDEO",
         audio: true,
       });
-      console.log("📞 Got local stream");
 
       // Create peer connection
       this.peerConnection = new RTCPeerConnection(ICE_SERVERS);
-      console.log("📞 Created peer connection");
 
       // Add local tracks
       this.localStream.getTracks().forEach((track) => {
@@ -312,7 +291,6 @@ class CallService {
       // Handle remote stream
       this.remoteStream = new MediaStream();
       this.peerConnection.ontrack = (event) => {
-        console.log("📞 Got remote track:", event.track.kind);
         event.streams[0].getTracks().forEach((track) => {
           this.remoteStream!.addTrack(track);
         });
@@ -322,7 +300,6 @@ class CallService {
       // Handle ICE candidates
       this.peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          console.log("📞 Sending ICE candidate to caller");
           socketService.getSocket()?.emit("call:ice-candidate", {
             conversationId,
             candidate: event.candidate,
@@ -333,7 +310,6 @@ class CallService {
 
       // Handle connection state changes
       this.peerConnection.onconnectionstatechange = () => {
-        console.log("📞 Connection state:", this.peerConnection?.connectionState);
         if (this.peerConnection?.connectionState === "disconnected" ||
             this.peerConnection?.connectionState === "failed") {
           this.endCall();
@@ -342,17 +318,14 @@ class CallService {
       };
 
       // Set remote description (offer)
-      console.log("📞 Setting remote description (offer)");
       await this.peerConnection.setRemoteDescription(
         new RTCSessionDescription(offer)
       );
 
       // Create and send answer
-      console.log("📞 Creating answer");
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
 
-      console.log("📞 Sending answer to:", callerId);
       socketService.getSocket()?.emit("call:answer", {
         conversationId,
         answer,

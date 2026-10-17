@@ -251,7 +251,6 @@ export class MessageService {
     });
 
     if (existingReaction) {
-      // Remove reaction if it already exists (toggle)
       await prisma.messageReaction.delete({
         where: {
           messageId_userId_emoji: {
@@ -261,10 +260,9 @@ export class MessageService {
           },
         },
       });
-      return { removed: true };
+      return { removed: true as const };
     }
 
-    // Add new reaction
     const reaction = await prisma.messageReaction.create({
       data: {
         messageId,
@@ -273,7 +271,7 @@ export class MessageService {
       },
     });
 
-    return reaction;
+    return { ...reaction, removed: false as const };
   }
 
   /**

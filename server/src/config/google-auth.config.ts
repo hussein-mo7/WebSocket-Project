@@ -17,7 +17,7 @@ passport.use(
       passReqToCallback: false,
       scope: ["email", "profile"],
     },
-    async (accessToken: string, refreshToken: string | undefined, profile: any, done: any) => {
+    async (_accessToken: string, _refreshToken: string | undefined, profile: any, done: any) => {
       try {
         // Extract user info from Google profile
         const googleId = profile.id;

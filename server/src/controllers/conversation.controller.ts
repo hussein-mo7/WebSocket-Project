@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { conversationService } from "../services/conversation.service";
 import { messageService } from "../services/message.service";
 import {

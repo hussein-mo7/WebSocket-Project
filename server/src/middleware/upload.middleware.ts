@@ -5,7 +5,7 @@ const storage = multer.memoryStorage();
 
 // File filter - images, videos, documents
 const fileFilter = (
-  req: Express.Request,
+  _req: Express.Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {

@@ -62,7 +62,12 @@ interface SocketContextValue {
   // Methods
   joinConversation: (conversationId: string) => void;
   leaveConversation: (conversationId: string) => void;
-  sendMessage: (conversationId: string, content: string, type?: string) => void;
+  sendMessage: (
+    conversationId: string,
+    content: string,
+    type?: string,
+    mediaUrls?: string[],
+  ) => void;
   startTyping: (conversationId: string) => void;
   stopTyping: (conversationId: string) => void;
   editMessage: (messageId: string, conversationId: string, content: string) => void;
@@ -219,12 +224,8 @@ export function SocketProvider({ children }: SocketProviderProps) {
     /**
      * Messages marked as read
      */
-    const handleMessagesRead = (data: {
-      conversationId: string;
-      userId: string;
-      readAt: string;
-    }) => {
-      // You can update message status here if needed
+    const handleMessagesRead = () => {
+      // Read receipts are applied when the conversation is reopened.
     };
 
     // =====================================================
@@ -285,14 +286,20 @@ export function SocketProvider({ children }: SocketProviderProps) {
    * Send a message via socket
    */
   const sendMessage = useCallback(
-    (conversationId: string, content: string, type: string = "TEXT") => {
+    (
+      conversationId: string,
+      content: string,
+      type: string = "TEXT",
+      mediaUrls: string[] = [],
+    ) => {
       socketService.sendMessage({
         conversationId,
         content,
         type,
+        mediaUrls,
       });
     },
-    []
+    [],
   );
 
   /**

@@ -1,4 +1,4 @@
-import express, { Express, Request, Response, NextFunction } from "express";
+import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
@@ -78,7 +78,7 @@ app.use(passport.session());
 /**
  * Health Check Route
  */
-app.get("/api/health", (req: Request, res: Response) => {
+app.get("/api/health", (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Server is running",
@@ -89,7 +89,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 /**
  * Root Route for Render Health Checks
  */
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "WebSocket Chat API Server",

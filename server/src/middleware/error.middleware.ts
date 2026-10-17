@@ -101,9 +101,9 @@ const handleZodError = (error: ZodError): ErrorResponse => {
  */
 export const errorHandler = (
   error: Error | AppError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   console.error("❌ Error:", error);
 
@@ -166,7 +166,7 @@ export const errorHandler = (
 /**
  * Handle 404 - Route Not Found
  */
-export const notFound = (req: Request, res: Response, next: NextFunction) => {
+export const notFound = (req: Request, _res: Response, next: NextFunction) => {
   const error = new AppError(`Route ${req.originalUrl} not found`, 404);
   next(error);
 };

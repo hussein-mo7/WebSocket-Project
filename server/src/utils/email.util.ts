@@ -67,7 +67,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
  */
 export const sendVerificationEmail = async (
   email: string,
-  verificationToken: string,
+  _verificationToken: string,
   verificationLink: string,
   name?: string
 ): Promise<void> => {
@@ -88,7 +88,7 @@ export const sendVerificationEmail = async (
  */
 export const sendPasswordResetEmail = async (
   email: string,
-  resetToken: string,
+  _resetToken: string,
   resetLink: string,
   name?: string
 ): Promise<void> => {
